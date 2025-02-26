@@ -24,7 +24,6 @@ int main() {
   std::cout << "Socket options set." << std::endl;
 
   struct sockaddr_in address;
-  int addrlen = sizeof(address);
 
   std::memset(&address, 0, sizeof(address));
 

@@ -1,0 +1,44 @@
+# Compiled binaries
+server
+client
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# Object files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Dependency files
+*.d
+
+# Build directories
+build/
+bin/
+obj/
+Debug/
+Release/
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*~
+*.sublime-*
+.project
+.cproject
+.settings/
+
+# OS specific files
+# macOS
+.DS_Store
+.Ap
