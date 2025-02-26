@@ -4,6 +4,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <cstring>
+#include <arpa/inet.h>
 
 int main() {
 
@@ -43,29 +44,40 @@ int main() {
   }
 
   std::cout << "Server listening on port " << PORT << std::endl;
+  while(true){
+    int new_socket;
+    struct sockaddr_in client_address;
+    int client_addrlen = sizeof(client_address);
 
-  int new_socket;
-  struct sockaddr_in client_address;
-  int client_addrlen = sizeof(client_address);
-  
-  std::cout << "Waiting for a client to connect" << std::endl;
+    std::cout << "Waiting for a client to connect" << std::endl;
 
-  new_socket = accept(server_fd, (struct sockaddr*) &client_address, (socklen_t*) &client_addrlen);
-  if(new_socket < 0){
-    std::cerr << "Accept failed" << std::endl;
+    new_socket = accept(server_fd, (struct sockaddr*) &client_address, (socklen_t*) &client_addrlen);
+    if(new_socket < 0){
+      std::cerr << "Accept failed" << std::endl;
+      continue;
+    }
+    char client_ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &client_address.sin_addr, client_ip, INET_ADDRSTRLEN);
+    std::cout << "Connection accepted from " << client_ip << ":" << ntohs(client_address.sin_port) << std::endl;
+
+    char buffer[1024];
+    std::memset(&buffer, 0, sizeof(buffer));
+    int valread = read(new_socket, buffer, 1024);
+    if(valread > 0) {
+      buffer[valread] = '\0';
+      std::cout << "Message from client: " << buffer << std::endl;
+
+      const char *hello = "Hello from the server";
+      send(new_socket, hello, strlen(hello), 0);
+      std::cout << "Hello message sent to client" << std::endl;
+    } else if (valread == 0) {
+      std::cout << "Client disconnected" << std::endl;
+    } else {
+      std::cerr << "Error reading from client" << std::endl;
+    }
+    close(new_socket);
+    std::cout << "Connection with client closed" << std::endl;
   }
-
-  std::cout << "Connection accepted" << std::endl;
-
-  char buffer[1024];
-  std::memset(&buffer, 0, sizeof(buffer));
-  int valread = read(new_socket, buffer, 1024);
-  std::cout << "Message from client: " << buffer << std::endl;
-
-  const char *hello = "Hello from the server";
-  send(new_socket, hello, strlen(hello), 0);
-  std::cout << "Hello message sent to client" << std::endl;
-  close(new_socket);
   close(server_fd);
 
   std::cout << "Server closed" << std::endl;
